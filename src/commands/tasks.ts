@@ -1,4 +1,4 @@
-import { CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { CommandInteraction, SlashCommandBuilder, time } from "discord.js";
 import { getTasks, TasksResponse } from "../services/task";
 
 module.exports = {
@@ -21,11 +21,13 @@ module.exports = {
 
     // all OPTION SET TO TRUE:
     if (showAll) {
-      const allTaskContents = allTasksArray.map((t) => t.content);
-      const interactionResponse = allTaskContents.reduce(
-        (acc, content) => (acc += `- ${content} \n`),
-        ""
-      );
+      const interactionResponse = allTasksArray.reduce((acc, current) => {
+        const isoDate = Date.parse(current.taskDate);
+        const jsDate = new Date();
+        jsDate.setTime(+isoDate);
+        const discDate = time(jsDate, "R");
+        return (acc += `- ${current.content} (${discDate}) \n`);
+      }, "");
 
       interaction.reply(interactionResponse);
     }
@@ -39,11 +41,14 @@ module.exports = {
           ephemeral: true,
         });
       } else {
-        const pendingTasksContents = pendingTasks.map(t => t.content);
-        const interactionResponse = pendingTasksContents.reduce(
-          (acc, content) => (acc += `- ${content} \n`),
-          ""
-        );
+        const interactionResponse = pendingTasks.reduce((acc, current) => {
+          const isoDate = Date.parse(current.taskDate);
+          const jsDate = new Date();
+          jsDate.setTime(+isoDate);
+          const discDate = time(jsDate, "R");
+          return (acc += `- ${current.content} (${discDate}) \n`);
+        }, "");
+
         interaction.reply(interactionResponse);
       }
     }
